@@ -1,0 +1,170 @@
+@model ATM_Prediction_System.Models.ATMRequest
+@{
+    Layout = null;
+    ViewData["Title"] = "ATM Cash Predictor";
+}
+
+<style>
+    body {
+        margin: 0;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        background: linear-gradient(135deg, #0f172a, #1e293b);
+        min-height: 100vh;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .card {
+        width: 450px;
+        background: rgba(255,255,255,0.08);
+        backdrop-filter: blur(12px);
+        padding: 30px;
+        border-radius: 18px;
+        box-shadow: 0 20px 50px rgba(0,0,0,0.4);
+        animation: fadeIn 0.6s ease-in-out;
+        color: white;
+    }
+
+    h2 {
+        text-align: center;
+        margin-bottom: 20px;
+        font-size: 22px;
+        color: #e2e8f0;
+    }
+
+    label {
+        font-size: 13px;
+        font-weight: 600;
+        color: #cbd5e1;
+        display: block;
+        margin-top: 12px;
+    }
+
+    select, input {
+        width: 100%;
+        padding: 12px;
+        margin-top: 6px;
+        margin-bottom: 10px;
+        border: 1px solid #334155;
+        border-radius: 10px;
+        background: #0f172a;
+        color: white;
+    }
+
+    button {
+        width: 100%;
+        padding: 12px;
+        border: none;
+        border-radius: 10px;
+        background: linear-gradient(135deg, #3b82f6, #6366f1);
+        color: white;
+        font-weight: 600;
+        margin-top: 15px;
+    }
+</style>
+
+<div class="card">
+
+    <h2> ATM Cash Predictor</h2>
+
+    @if (ViewBag.ErrorMessage != null)
+    {
+        <div class="alert">@ViewBag.ErrorMessage</div>
+    }
+
+    <form asp-action="Result" method="post">
+
+        <!-- BANK -->
+        <label>Bank</label>
+        <select id="bank" name="Bank">
+            <option value="">Select Bank</option>
+            @foreach (var b in ViewBag.Banks)
+            {
+                <option value="@b">@b</option>
+            }
+        </select>
+
+        <!-- STATE -->
+        <label>State</label>
+        <select id="state" name="State"></select>
+
+        <!-- CITY -->
+        <label>City</label>
+        <select id="city" name="City"></select>
+
+        <!-- ADDRESS -->
+        <label>Address</label>
+        <select id="address" name="Address"></select>
+
+        <!-- TIME -->
+        <label>Prediction Date & Time</label>
+        <input asp-for="PredictionDateTime" type="datetime-local" />
+
+        <button type="submit">Predict Availability</button>
+    </form>
+
+</div>
+<script>
+const bank = document.getElementById("bank");
+const state = document.getElementById("state");
+const city = document.getElementById("city");
+const address = document.getElementById("address");
+
+// RESET FUNCTION
+function reset(select) {
+    select.innerHTML = "<option value=''>Select</option>";
+}
+
+// BANK → STATE
+bank.addEventListener("change", function () {
+    reset(state);
+    reset(city);
+    reset(address);
+
+    if (!this.value) return;
+
+    fetch(`/Predict/GetStates?bank=${this.value}`)
+        .then(r => r.json())
+        .then(data => {
+            data.forEach(x => {
+                state.innerHTML += `<option value="${x}">${x}</option>`;
+            });
+        });
+});
+
+// STATE → CITY
+state.addEventListener("change", function () {
+    reset(city);
+    reset(address);
+
+    let bankVal = bank.value;
+    if (!bankVal || !this.value) return;
+
+    fetch(`/Predict/GetCities?bank=${bankVal}&state=${this.value}`)
+        .then(r => r.json())
+        .then(data => {
+            data.forEach(x => {
+                city.innerHTML += `<option value="${x}">${x}</option>`;
+            });
+        });
+});
+
+// CITY → ADDRESS
+city.addEventListener("change", function () {
+    reset(address);
+
+    let bankVal = bank.value;
+    let stateVal = state.value;
+
+    if (!bankVal || !stateVal || !this.value) return;
+
+    fetch(`/Predict/GetAddresses?bank=${bankVal}&state=${stateVal}&city=${this.value}`)
+        .then(r => r.json())
+        .then(data => {
+            data.forEach(x => {
+                address.innerHTML += `<option value="${x}">${x}</option>`;
+            });
+        });
+});
+</script>
