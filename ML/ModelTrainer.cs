@@ -21,9 +21,6 @@ namespace ATM_Prediction_System.ML
             LoadModel();
         }
 
-        // =====================================================
-        // DEBUG DATA PREVIEW (KEEP THIS)
-        // =====================================================
         public void TestLoadData()
         {
             var dataPath = Path.Combine(Directory.GetCurrentDirectory(), "Data", "nigeriaatmdataset.csv");
@@ -37,7 +34,7 @@ namespace ATM_Prediction_System.ML
 
             var rows = _mlContext.Data.CreateEnumerable<ATMData>(data, reuseRowObject: false);
 
-            Console.WriteLine("🔍 Dataset Preview:");
+            Console.WriteLine("Dataset Preview:");
 
             int count = 0;
             foreach (var row in rows)
@@ -49,20 +46,14 @@ namespace ATM_Prediction_System.ML
                     break;
             }
 
-            Console.WriteLine("✔ Dataset loaded successfully");
+            Console.WriteLine("Dataset loaded successfully");
         }
 
-        // =====================================================
-        // LABEL
-        // =====================================================
         private bool ConvertLabel(string cashAvailability)
         {
             return cashAvailability?.Trim().ToLower() == "available";
         }
 
-        // =====================================================
-        // DATA PREPARATION
-        // =====================================================
         public IEnumerable<ATMTrainData> PrepareData()
 {
     var dataPath = Path.Combine(Directory.GetCurrentDirectory(), "Data", "nigeriaatmdataset.csv");
@@ -87,7 +78,7 @@ namespace ATM_Prediction_System.ML
             continue;
         }
 
-        // SAFE parsing (fixes culture issues)
+        
         if (!DateTime.TryParse(
                 row.LastChecked,
                 System.Globalization.CultureInfo.InvariantCulture,
@@ -126,12 +117,9 @@ namespace ATM_Prediction_System.ML
     Console.WriteLine($"VALID ROWS: {valid}");
     Console.WriteLine($"SKIPPED ROWS: {skipped}");
 }
- // =====================================================
-        // TRAIN MODEL (FIXED - NO SCHEMA ERROR)
-        // =====================================================
-        public void TrainModel()
+         public void TrainModel()
 {
-    Console.WriteLine("🚀 Training started...");
+    Console.WriteLine(" Training started...");
 
     var dataList = PrepareData().ToList();
 
@@ -169,24 +157,21 @@ namespace ATM_Prediction_System.ML
 
     _model = pipeline.Fit(split.TrainSet);
 
-    Console.WriteLine("✔ Training completed");
+    Console.WriteLine(" Training completed");
 
     var folder = Path.Combine(AppContext.BaseDirectory, "ML");
     Directory.CreateDirectory(folder);
 
     _mlContext.Model.Save(_model, split.TrainSet.Schema, ModelPath);
 
-    Console.WriteLine($"💾 Model saved at: {ModelPath}");
+    Console.WriteLine($" Model saved at: {ModelPath}");
 
     var predictions = _model.Transform(split.TestSet);
     var metrics = _mlContext.BinaryClassification.Evaluate(predictions);
 
     Console.WriteLine($"Accuracy: {metrics.Accuracy:P2}");
 }
-        // =====================================================
-        // LOAD MODEL
-        // =====================================================
-        public void LoadModel()
+               public void LoadModel()
         {
             try
             {
@@ -194,23 +179,20 @@ namespace ATM_Prediction_System.ML
                 {
                     DataViewSchema schema;
                     _model = _mlContext.Model.Load(ModelPath, out schema);
-                    Console.WriteLine("✔ Model loaded successfully");
+                    Console.WriteLine(" Model loaded successfully");
                 }
                 else
                 {
-                    Console.WriteLine("⚠ No trained model found. Run TrainModel first.");
+                    Console.WriteLine(" No trained model found. Run TrainModel first.");
                 }
             }
             catch (Exception ex)
             {
-                Console.WriteLine("❌ Model load error: " + ex.Message);
+                Console.WriteLine(" Model load error: " + ex.Message);
             }
         }
 
-        // =====================================================
-        // PREDICT
-        // =====================================================
-        public ATMResult Predict(ATMRequest request)
+                public ATMResult Predict(ATMRequest request)
         {
             if (_model == null)
                 LoadModel();

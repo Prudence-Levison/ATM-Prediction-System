@@ -12,27 +12,19 @@ namespace ATM_Prediction_System.Controllers
         {
             _service = new ATMDataService();
         }
-
-        // PAGE LOAD
         public IActionResult Index()
         {
             ViewBag.Banks = _service.GetBanks();
             return View();
         }
-
-        // AJAX: States
         public JsonResult GetStates(string bank)
         {
             return Json(_service.GetStates(bank));
         }
-
-        // AJAX: Cities
         public JsonResult GetCities(string bank, string state)
         {
             return Json(_service.GetCities(bank, state));
         }
-
-        // AJAX: Addresses
         public JsonResult GetAddresses(string bank, string state, string city)
         {
             return Json(_service.GetAddresses(bank, state, city));
@@ -51,7 +43,6 @@ public IActionResult Result(ATMRequest request)
         return View("Index");
     }
 
-    // resolve ATM internally
     var atm = _service.GetATM(
         request.Bank,
         request.State,

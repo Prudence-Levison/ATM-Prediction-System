@@ -6,7 +6,6 @@ namespace ATM_Prediction_System.Controllers
 {
     public class TestController : Controller
     {
-        // STEP 1: Test dataset loading
         public IActionResult LoadData()
         {
             var trainer = new ModelTrainer();
@@ -14,8 +13,6 @@ namespace ATM_Prediction_System.Controllers
 
             return Content("Data loaded. Check terminal.");
         }
-
-        // STEP 2: Train model
         public IActionResult Train()
         {
             var trainer = new ModelTrainer();
@@ -24,14 +21,11 @@ namespace ATM_Prediction_System.Controllers
             return Content("Training started. Check terminal.");
         }
 
-        // STEP 3: SHOW UI PAGE (THIS WAS MISSING)
         [HttpGet]
         public IActionResult PredictTest()
         {
             return View();
         }
-
-        // STEP 4: HANDLE PREDICTION
         [HttpPost]
         public IActionResult Predict(ATMRequest request)
         {
